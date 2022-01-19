@@ -1,0 +1,78 @@
+{
+  "name": "google-sa-id-token",
+  "version": "0.0.0",
+  "description": "Fetch ID Token for Service Account when running in GCloud",
+  "keywords": [
+    "google",
+    "auth",
+    "token",
+    "service",
+    "account",
+    "id"
+  ],
+  "main": "dist/google-sa-id-token.js",
+  "types": "dist/google-sa-id-token.d.ts",
+  "files": [
+    "dist"
+  ],
+  "author": "mdovhopo <dovgopolyy0000@gmail.com>",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/mdovhopo/google-sa-id-token"
+  },
+  "license": "MIT",
+  "engines": {
+    "node": ">=14.0.0"
+  },
+  "scripts": {
+    "lint": "eslint --fix 'src/**/*.ts'",
+    "prebuild": "rimraf dist",
+    "build": "tsc --project tsconfig.build.json",
+    "test": "jest --config jest.config.ts --coverage",
+    "test:prod": "npm run lint && npm run test -- --no-cache"
+  },
+  "lint-staged": {
+    "{src,test}/**/*.ts": [
+      "eslint --fix"
+    ]
+  },
+  "commitlint": {
+    "extends": [
+      "@commitlint/config-conventional"
+    ]
+  },
+  "devDependencies": {
+    "@commitlint/cli": "14.1.0",
+    "@commitlint/config-conventional": "14.1.0",
+    "@types/jest": "27.0.2",
+    "@types/jsonwebtoken": "^8.5.8",
+    "@types/ms": "^0.7.31",
+    "@types/node": "^16.11.7",
+    "@typescript-eslint/eslint-plugin": "^5.3.1",
+    "@typescript-eslint/parser": "^5.3.1",
+    "better-wait": "^1.0.2",
+    "escape-string-regexp": "^4.0.0",
+    "eslint": "^7.32.0",
+    "eslint-config-prettier": "^8.3.0",
+    "eslint-plugin-prettier": "^4.0.0",
+    "eslint-plugin-simple-import-sort": "^7.0.0",
+    "fetch-mock-jest": "^1.5.1",
+    "husky": "^7.0.4",
+    "is-debugging": "^1.0.1",
+    "jest": "27.3.1",
+    "jest-config": "27.3.1",
+    "jsonwebtoken": "^8.5.1",
+    "lint-staged": "^11.2.6",
+    "ms": "^2.1.2",
+    "nock": "^13.2.2",
+    "prettier": "^2.4.1",
+    "rimraf": "^3.0.2",
+    "semantic-release": "^18.0.0",
+    "ts-jest": "^27.0.7",
+    "ts-node": "^10.4.0",
+    "typescript": "^4.4.4"
+  },
+  "dependencies": {
+    "gcp-metadata": "^4.3.1"
+  }
+}
