@@ -1,18 +1,25 @@
 import { instance } from 'gcp-metadata';
 
 import { TokenCache, TokenPayload, TokenRaw } from './token.types';
+import { decodeSaToken } from './utils';
 
 export type GoogleSaIdTokenOptions = {
   serviceAccountEmail?: string;
+
+  // this margin will be subtracted from actuall
+  // token exp, to avoid almost expired token
+  tokenExpiryMargin?: number;
 };
 
 export class GoogleSaIdToken {
   readonly sa: string;
+  readonly tokenExpiryMargin: number;
 
   private tokenCache: Record<string, Promise<TokenCache>> = {};
 
-  constructor({ serviceAccountEmail }: GoogleSaIdTokenOptions = {}) {
+  constructor({ serviceAccountEmail, tokenExpiryMargin }: GoogleSaIdTokenOptions = {}) {
     this.sa = serviceAccountEmail || 'default';
+    this.tokenExpiryMargin = tokenExpiryMargin || 2000;
   }
 
   async fetchIdTokenNoCache(aud: string): Promise<{ raw: TokenRaw; payload: TokenPayload }> {
@@ -38,7 +45,7 @@ export class GoogleSaIdToken {
     { withDecoded = false } = {}
   ): Promise<TokenRaw | { raw: TokenRaw; payload: TokenPayload }> {
     const cache = await this.tokenCache[aud];
-    if (!cache || isTokenExpired(cache.payload)) {
+    if (!cache || this.isTokenExpired(cache.payload)) {
       const promise = (this.tokenCache[aud] = this.fetchIdTokenNoCache(aud));
 
       return rawOrDecoded(await promise, withDecoded);
@@ -46,12 +53,10 @@ export class GoogleSaIdToken {
 
     return rawOrDecoded(cache, withDecoded);
   }
-}
 
-function isTokenExpired(token: TokenPayload): boolean {
-  // add 2s margin to token check, to avoid calls with
-  // almost expired token
-  return token.exp - 2000 <= Date.now();
+  isTokenExpired({ exp }: TokenPayload): boolean {
+    return exp - this.tokenExpiryMargin <= Date.now();
+  }
 }
 
 function rawOrDecoded(
@@ -59,9 +64,4 @@ function rawOrDecoded(
   withDecoded?: boolean
 ): TokenRaw | { raw: TokenRaw; payload: TokenPayload } {
   return withDecoded ? value : value.raw;
-}
-
-function decodeSaToken(token: TokenRaw): TokenPayload {
-  const [, payload] = token.split('.');
-  return JSON.parse(Buffer.from(payload, 'base64url').toString());
 }

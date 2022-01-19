@@ -4,8 +4,7 @@ const mock = mockNodeFetch();
 
 import { wait } from 'better-wait';
 
-import { GoogleSaIdToken } from '../src/google-sa-id-token';
-import { generateExampleSaToken } from '../src/utils/generate-example-sa-token';
+import { generateExampleSaToken, GoogleSaIdToken } from '../src';
 
 describe('GoogleSaIdToken', () => {
   mockLifeCycle(mock);

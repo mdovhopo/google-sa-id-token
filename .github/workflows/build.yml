@@ -44,14 +44,6 @@ jobs:
         run: |
           npm ci
           npm run build
-          npm run build:docs
-
-      - name: Publish docs
-        uses: peaceiris/actions-gh-pages@v3
-        with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_branch: gh-pages
-          publish_dir: docs
 
       - name: Release
         env:

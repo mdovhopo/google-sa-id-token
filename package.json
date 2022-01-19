@@ -8,7 +8,8 @@
     "token",
     "service",
     "account",
-    "id"
+    "id",
+    "cache"
   ],
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
