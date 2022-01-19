@@ -10,8 +10,8 @@
     "account",
     "id"
   ],
-  "main": "dist/google-sa-id-token.js",
-  "types": "dist/google-sa-id-token.d.ts",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
   "files": [
     "dist"
   ],
