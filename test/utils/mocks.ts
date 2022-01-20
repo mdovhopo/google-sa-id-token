@@ -14,7 +14,7 @@ export function mockGetSaIdToken(
       name,
       url:
         HOST_ADDRESS +
-        '/computeMetadata/v1/instance/service-accounts/default/token?format=full&audience=' +
+        '/computeMetadata/v1/instance/service-accounts/default/identity?audience=' +
         audience,
       headers: { 'Metadata-Flavor': 'Google' },
     },

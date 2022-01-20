@@ -24,7 +24,7 @@ export class GoogleSaIdToken {
 
   async fetchIdTokenNoCache(aud: string): Promise<Token> {
     const instanceOptions = {
-      property: `service-accounts/${this.sa}/token?format=full&audience=${aud}`,
+      property: `service-accounts/${this.sa}/identity?audience=${aud}`,
     };
 
     const token = await instance(instanceOptions);
