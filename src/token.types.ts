@@ -11,4 +11,12 @@ export type TokenPayload = {
   sub: string; // usually id of service account used
 };
 
-export type TokenCache = { raw: TokenRaw; payload: TokenPayload };
+export type Token = {
+  raw: TokenRaw;
+  payload: TokenPayload;
+};
+
+export type TokenCache = {
+  fetchTokenStatus: 'pending' | 'rejected' | 'fulfilled';
+  promise: Promise<Token>;
+};

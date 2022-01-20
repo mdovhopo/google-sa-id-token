@@ -1,6 +1,6 @@
 import { instance } from 'gcp-metadata';
 
-import { TokenCache, TokenPayload, TokenRaw } from './token.types';
+import { Token, TokenCache, TokenPayload, TokenRaw } from './token.types';
 import { decodeSaToken } from './utils';
 
 export type GoogleSaIdTokenOptions = {
@@ -15,14 +15,14 @@ export class GoogleSaIdToken {
   readonly sa: string;
   readonly tokenExpiryMargin: number;
 
-  private tokenCache: Record<string, Promise<TokenCache>> = {};
+  private tokenCache: Record<string, TokenCache> = {};
 
   constructor({ serviceAccountEmail, tokenExpiryMargin }: GoogleSaIdTokenOptions = {}) {
     this.sa = serviceAccountEmail || 'default';
     this.tokenExpiryMargin = tokenExpiryMargin || 2000;
   }
 
-  async fetchIdTokenNoCache(aud: string): Promise<{ raw: TokenRaw; payload: TokenPayload }> {
+  async fetchIdTokenNoCache(aud: string): Promise<Token> {
     const instanceOptions = {
       property: `service-accounts/${this.sa}/token?format=full&audience=${aud}`,
     };
@@ -35,6 +35,41 @@ export class GoogleSaIdToken {
     };
   }
 
+  private addFulfilHandler(aud: string, promise: Promise<Token>): Promise<Token> {
+    promise
+      .then((value) => {
+        // 'token promise resolved, refresh status'
+        this.tokenCache[aud].fetchTokenStatus = 'fulfilled';
+        return value;
+      })
+      .catch(() => {
+        // 'token promise rejected, refresh status'
+        this.tokenCache[aud].fetchTokenStatus = 'rejected';
+      });
+
+    return promise;
+  }
+
+  private fetchIdTokenCached(aud: string, opts: { forceRefresh?: boolean } = {}): TokenCache {
+    const cache = this.tokenCache[aud];
+
+    if (opts.forceRefresh) {
+      return (this.tokenCache[aud] = {
+        promise: this.addFulfilHandler(aud, this.fetchIdTokenNoCache(aud)),
+        fetchTokenStatus: 'pending',
+      });
+    }
+
+    if (cache) {
+      return cache;
+    }
+
+    return (this.tokenCache[aud] = {
+      fetchTokenStatus: 'pending',
+      promise: this.addFulfilHandler(aud, this.fetchIdTokenNoCache(aud)),
+    });
+  }
+
   async fetchIdToken(aud: string): Promise<TokenRaw>;
   async fetchIdToken(
     aud: string,
@@ -44,14 +79,18 @@ export class GoogleSaIdToken {
     aud: string,
     { withDecoded = false } = {}
   ): Promise<TokenRaw | { raw: TokenRaw; payload: TokenPayload }> {
-    const cache = await this.tokenCache[aud];
-    if (!cache || this.isTokenExpired(cache.payload)) {
-      const promise = (this.tokenCache[aud] = this.fetchIdTokenNoCache(aud));
+    const token = this.fetchIdTokenCached(aud);
 
-      return rawOrDecoded(await promise, withDecoded);
+    if (token.fetchTokenStatus === 'pending') {
+      return rawOrDecoded(await token.promise, withDecoded);
     }
 
-    return rawOrDecoded(cache, withDecoded);
+    const { payload } = await token.promise;
+    const result = this.fetchIdTokenCached(aud, {
+      forceRefresh: token.fetchTokenStatus === 'rejected' || this.isTokenExpired(payload),
+    });
+
+    return rawOrDecoded(await result.promise, withDecoded);
   }
 
   isTokenExpired({ exp }: TokenPayload): boolean {
@@ -60,7 +99,7 @@ export class GoogleSaIdToken {
 }
 
 function rawOrDecoded(
-  value: TokenCache,
+  value: Awaited<TokenCache['promise']>,
   withDecoded?: boolean
 ): TokenRaw | { raw: TokenRaw; payload: TokenPayload } {
   return withDecoded ? value : value.raw;

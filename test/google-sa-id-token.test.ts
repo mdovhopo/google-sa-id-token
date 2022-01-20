@@ -7,9 +7,9 @@ import { wait } from 'better-wait';
 import { generateExampleSaToken, GoogleSaIdToken } from '../src';
 
 describe('GoogleSaIdToken', () => {
-  mockLifeCycle(mock);
-
   describe('fetchIdToken', () => {
+    mockLifeCycle(mock);
+
     it('fetches new valid token first time, and then returns cached', async () => {
       const aud = 'test';
       const mockToken = generateExampleSaToken({ aud });
@@ -93,6 +93,27 @@ describe('GoogleSaIdToken', () => {
 
       isDone();
       expect(token).toEqual(validToken);
+    });
+
+    test('concurrency', async () => {
+      const aud = 'test';
+
+      const mockToken = generateExampleSaToken({ aud });
+      const isDone = mockGetSaIdToken(mock, mockToken.raw, aud);
+
+      const client = new GoogleSaIdToken();
+
+      const first = client.fetchIdToken(aud);
+      const second = client.fetchIdToken(aud);
+
+      const tokens = await Promise.all([first, second]);
+      expect(tokens).toEqual([mockToken.raw, mockToken.raw]);
+
+      const third = await client.fetchIdToken(aud);
+
+      isDone();
+
+      expect(third).toEqual(mockToken.raw);
     });
   });
 });

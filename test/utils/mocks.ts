@@ -18,7 +18,8 @@ export function mockGetSaIdToken(
         audience,
       headers: { 'Metadata-Flavor': 'Google' },
     },
-    { status: 200, body: jwt, headers: { 'metadata-flavor': 'Google' } }
+    { status: 200, body: jwt, headers: { 'metadata-flavor': 'Google' } },
+    { delay: 100 }
   );
 
   return () => {
@@ -38,9 +39,9 @@ export function mockLifeCycle(mock: ReturnType<typeof sandbox>): void {
     // catch unmatched responses
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore
-    mock.catch((url, opts) => {
-      expect({ url, opts }).toEqual('all responses must be caught');
-    });
+    // mock.catch((url, opts) => {
+    //   expect({ url, opts }).toEqual('all responses must be caught');
+    // });
   });
 
   afterEach(() => {
