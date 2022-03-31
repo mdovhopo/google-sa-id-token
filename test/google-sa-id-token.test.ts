@@ -105,7 +105,7 @@ describe('GoogleSaIdToken', () => {
       const client = new GoogleSaIdToken();
       const isDone = mockGetSaIdToken(mock, validToken.raw, aud);
 
-      const token = await client.fetchIdToken(aud, { withDecoded: true });
+      const token = await client.fetchIdTokenDecoded(aud);
 
       isDone();
       expect(token).toEqual(validToken);

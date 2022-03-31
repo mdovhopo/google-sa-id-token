@@ -46,7 +46,7 @@ console.log(token);
 import { GoogleSaIdToken } from 'google-sa-id-token';
 
 const client = new GoogleSaIdToken();
-const token = await client.fetchIdToken(aud, { withDecoded: true });
+const token = await client.fetchIdTokenDecoded(aud);
 
 console.log(token); 
 // example output

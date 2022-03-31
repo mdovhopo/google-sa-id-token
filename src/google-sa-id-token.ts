@@ -89,15 +89,7 @@ export class GoogleSaIdToken {
     });
   }
 
-  async fetchIdToken(aud?: string): Promise<TokenRaw>;
-  async fetchIdToken(
-    aud?: string,
-    opts?: { withDecoded?: boolean }
-  ): Promise<{ raw: TokenRaw; payload: TokenPayload }>;
-  async fetchIdToken(
-    audience: string,
-    { withDecoded = false } = {}
-  ): Promise<TokenRaw | { raw: TokenRaw; payload: TokenPayload }> {
+  async fetchIdTokenDecoded(audience?: string): Promise<{ raw: TokenRaw; payload: TokenPayload }> {
     const aud = this.defaultAudience || audience;
     if (!aud) {
       this.noAudError();
@@ -106,7 +98,7 @@ export class GoogleSaIdToken {
     const token = this.fetchIdTokenCached(aud);
 
     if (token.fetchTokenStatus === 'pending') {
-      return rawOrDecoded(await token.promise, withDecoded);
+      return await token.promise;
     }
 
     const { payload } = await token.promise;
@@ -114,17 +106,14 @@ export class GoogleSaIdToken {
       forceRefresh: token.fetchTokenStatus === 'rejected' || this.isTokenExpired(payload),
     });
 
-    return rawOrDecoded(await result.promise, withDecoded);
+    return await result.promise;
+  }
+
+  async fetchIdToken(audience?: string): Promise<TokenRaw> {
+    return (await this.fetchIdTokenDecoded(audience)).raw;
   }
 
   isTokenExpired({ exp }: TokenPayload): boolean {
     return exp - this.tokenExpiryMargin <= Date.now();
   }
-}
-
-function rawOrDecoded(
-  value: Awaited<TokenCache['promise']>,
-  withDecoded?: boolean
-): TokenRaw | { raw: TokenRaw; payload: TokenPayload } {
-  return withDecoded ? value : value.raw;
 }
