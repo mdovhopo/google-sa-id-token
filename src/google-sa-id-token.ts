@@ -99,7 +99,7 @@ export class GoogleSaIdToken {
     { withDecoded = false } = {}
   ): Promise<TokenRaw | { raw: TokenRaw; payload: TokenPayload }> {
     const aud = this.defaultAudience || audience;
-    if (!audience) {
+    if (!aud) {
       this.noAudError();
     }
 

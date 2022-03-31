@@ -33,8 +33,8 @@ describe('GoogleSaIdToken', () => {
 
       const client = new GoogleSaIdToken({ defaultAudience: aud });
 
-      const first = await client.fetchIdToken(aud);
-      const second = await client.fetchIdToken(aud);
+      const first = await client.fetchIdToken();
+      const second = await client.fetchIdToken();
 
       isDone();
 

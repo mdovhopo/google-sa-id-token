@@ -29,6 +29,18 @@ console.log(token);
 // eyJhbGciOiJSUzI1NiIsImtpZCI6IjAxNWFkMDYwZDJiNDQ1MzU5YzliMTA1ZjgwM2RjNzU4YzI5ZjE5ODJkNjFhMWU0ZjFmZGM4ZjBiN2UyNjVjYzQxZTIwMDVlMjM1YzIxMTQ1IiwidHlwIjoiSldUIn0.eyJhdWQiOiJkZWZhdWx0IiwiYXpwIjoiPGV4YW1wbGUtc2VydmljZS1hY2NvdW50LWlkPiIsImVtYWlsIjoiZXhhbXBsZUBwcm9qZWN0LWlkLmlhbS5nc2VydmljZWFjY291bnQuY29tIiwiZW1haWxfdmVyaWZpZWQiOnRydWUsImV4cCI6MTY0MjYzMTI0Mzg2MCwiaWF0IjoxNjQyNjI3NjQzODYwLCJpc3MiOiJodHRwczovL2FjY291bnRzLmdvb2dsZS5jb20iLCJzdWIiOiI8ZXhhbXBsZS1zZXJ2aWNlLWFjY291bnQtaWQ-In0.+UpJvARVRn6ESlEr+Gyk4VA+QJV6QzqQP1E7gY2u5D3oKgjBzhlWcxmihDCCO3BFnACes4sMG+VXXqmuQW/pjw==
 ```
 
+### Get an id Token for default identity (Application Default Credentials) & default aud
+```typescript
+import { GoogleSaIdToken } from 'google-sa-id-token';
+
+const client = new GoogleSaIdToken({ defaultAudience: aud });
+const token = await client.fetchIdToken();
+
+console.log(token); 
+// example output 
+// eyJhbGciOiJSUzI1NiIsImtpZCI6IjAxNWFkMDYwZDJiNDQ1MzU5YzliMTA1ZjgwM2RjNzU4YzI5ZjE5ODJkNjFhMWU0ZjFmZGM4ZjBiN2UyNjVjYzQxZTIwMDVlMjM1YzIxMTQ1IiwidHlwIjoiSldUIn0.eyJhdWQiOiJkZWZhdWx0IiwiYXpwIjoiPGV4YW1wbGUtc2VydmljZS1hY2NvdW50LWlkPiIsImVtYWlsIjoiZXhhbXBsZUBwcm9qZWN0LWlkLmlhbS5nc2VydmljZWFjY291bnQuY29tIiwiZW1haWxfdmVyaWZpZWQiOnRydWUsImV4cCI6MTY0MjYzMTI0Mzg2MCwiaWF0IjoxNjQyNjI3NjQzODYwLCJpc3MiOiJodHRwczovL2FjY291bnRzLmdvb2dsZS5jb20iLCJzdWIiOiI8ZXhhbXBsZS1zZXJ2aWNlLWFjY291bnQtaWQ-In0.+UpJvARVRn6ESlEr+Gyk4VA+QJV6QzqQP1E7gY2u5D3oKgjBzhlWcxmihDCCO3BFnACes4sMG+VXXqmuQW/pjw==
+```
+
 ### Add decoded token to response
 ```typescript
 import { GoogleSaIdToken } from 'google-sa-id-token';
