@@ -6,6 +6,8 @@ import { decodeSaToken } from './utils';
 export type GoogleSaIdTokenOptions = {
   serviceAccountEmail?: string;
 
+  defaultAudience?: string;
+
   // this margin will be subtracted from actuall
   // token exp, to avoid almost expired token
   tokenExpiryMargin?: number;
@@ -14,15 +16,32 @@ export type GoogleSaIdTokenOptions = {
 export class GoogleSaIdToken {
   readonly sa: string;
   readonly tokenExpiryMargin: number;
+  readonly defaultAudience?: string;
 
   private tokenCache: Record<string, TokenCache> = {};
 
-  constructor({ serviceAccountEmail, tokenExpiryMargin }: GoogleSaIdTokenOptions = {}) {
+  constructor({
+    serviceAccountEmail,
+    tokenExpiryMargin,
+    defaultAudience,
+  }: GoogleSaIdTokenOptions = {}) {
     this.sa = serviceAccountEmail || 'default';
     this.tokenExpiryMargin = tokenExpiryMargin || 2000;
+    this.defaultAudience = defaultAudience;
   }
 
-  async fetchIdTokenNoCache(aud: string): Promise<Token> {
+  private noAudError(): never {
+    throw new Error(
+      `audience is required, specify default audience in constructor or in method parameters`
+    );
+  }
+
+  async fetchIdTokenNoCache(audience?: string): Promise<Token> {
+    const aud = this.defaultAudience || audience;
+    if (!aud) {
+      this.noAudError();
+    }
+
     const instanceOptions = {
       property: `service-accounts/${this.sa}/identity?audience=${aud}`,
     };
@@ -70,15 +89,20 @@ export class GoogleSaIdToken {
     });
   }
 
-  async fetchIdToken(aud: string): Promise<TokenRaw>;
+  async fetchIdToken(aud?: string): Promise<TokenRaw>;
   async fetchIdToken(
-    aud: string,
+    aud?: string,
     opts?: { withDecoded?: boolean }
   ): Promise<{ raw: TokenRaw; payload: TokenPayload }>;
   async fetchIdToken(
-    aud: string,
+    audience: string,
     { withDecoded = false } = {}
   ): Promise<TokenRaw | { raw: TokenRaw; payload: TokenPayload }> {
+    const aud = this.defaultAudience || audience;
+    if (!audience) {
+      this.noAudError();
+    }
+
     const token = this.fetchIdTokenCached(aud);
 
     if (token.fetchTokenStatus === 'pending') {

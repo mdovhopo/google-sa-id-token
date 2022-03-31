@@ -12,4 +12,11 @@ describe('GoogleSaIdToken (rejections)', () => {
     expect(result.status).toEqual('rejected');
     expect((result as PromiseRejectedResult).reason).toBeInstanceOf(Error);
   });
+
+  it('fails, if aud was not specified', async () => {
+    const client = new GoogleSaIdToken();
+
+    await expect(client.fetchIdToken()).rejects.toThrowError();
+    await expect(client.fetchIdTokenNoCache()).rejects.toThrowError();
+  });
 });

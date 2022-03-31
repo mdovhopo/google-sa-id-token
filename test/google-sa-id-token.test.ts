@@ -26,6 +26,22 @@ describe('GoogleSaIdToken', () => {
       expect(second).toEqual(mockToken.raw);
     });
 
+    it('works with default aud', async () => {
+      const aud = 'test';
+      const mockToken = generateExampleSaToken({ aud });
+      const isDone = mockGetSaIdToken(mock, mockToken.raw, aud);
+
+      const client = new GoogleSaIdToken({ defaultAudience: aud });
+
+      const first = await client.fetchIdToken(aud);
+      const second = await client.fetchIdToken(aud);
+
+      isDone();
+
+      expect(first).toEqual(mockToken.raw);
+      expect(second).toEqual(mockToken.raw);
+    });
+
     it('caches tokens by audience', async () => {
       const aud1 = 'test1';
       const aud2 = 'test2';
