@@ -3,6 +3,7 @@ import { mockGetSaIdToken, mockLifeCycle, mockNodeFetch } from './utils/mocks';
 const mock = mockNodeFetch();
 
 import { wait } from 'better-wait';
+import ms from 'ms';
 
 import { generateExampleSaToken, GoogleSaIdToken } from '../src';
 
@@ -77,13 +78,14 @@ describe('GoogleSaIdToken', () => {
       const aud = 'test';
       const aboutToExpireToken = generateExampleSaToken({
         aud,
-        exp: Date.now(),
+        exp: Date.now() + ms('1s'),
+        iat: Date.now(),
       });
-      const validToken = generateExampleSaToken({ aud });
-
       const isDone1 = mockGetSaIdToken(mock, aboutToExpireToken.raw, aud);
 
-      const client = new GoogleSaIdToken();
+      const client = new GoogleSaIdToken({
+        tokenExpiryMargin: 0,
+      });
 
       const expired = await client.fetchIdToken(aud);
       await wait('1s');
@@ -91,6 +93,7 @@ describe('GoogleSaIdToken', () => {
       isDone1();
       expect(expired).toEqual(aboutToExpireToken.raw);
 
+      const validToken = generateExampleSaToken({ aud });
       const isDone2 = mockGetSaIdToken(mock, validToken.raw, aud, 'test-2');
       const fresh = await client.fetchIdToken(aud);
 

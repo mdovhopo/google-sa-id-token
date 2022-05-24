@@ -73,7 +73,7 @@ export class GoogleSaIdToken {
   private addFulfilHandler(aud: string, promise: Promise<Token>): Promise<Token> {
     promise
       .then((value) => {
-        this.logger?.error?.('fulfilHandler.resolved', { value });
+        this.logger?.info?.('fulfilHandler.resolved', { value });
         // 'token promise resolved, refresh status'
         this.tokenCache[aud].fetchTokenStatus = 'fulfilled';
         return value;
@@ -140,6 +140,16 @@ export class GoogleSaIdToken {
   }
 
   isTokenExpired({ exp }: TokenPayload): boolean {
-    return exp - this.tokenExpiryMargin <= Date.now();
+    const now = Date.now();
+    const expMillis = exp * 1000;
+    const isExpired = expMillis - this.tokenExpiryMargin <= now;
+    this.logger?.info?.('isTokenExpired.called', {
+      exp,
+      expMillis,
+      tokenExpiryMargin: this.tokenExpiryMargin,
+      now,
+      isExpired,
+    });
+    return isExpired;
   }
 }
