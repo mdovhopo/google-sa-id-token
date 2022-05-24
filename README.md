@@ -93,6 +93,26 @@ const token = await client.fetchIdTokenNoCache(aud);
 
 ```
 
+### Debug problems
+
+Lib allows you to 'hook in' to different parts of flow,
+by providing optional logger instance.
+
+
+```typescript
+import { GoogleSaIdToken } from 'google-sa-id-token';
+
+const logger = {
+  info: console.log,
+  error: console.error,
+}
+
+const client = new GoogleSaIdToken({ logger });
+const token = await client.fetchIdToken(aud);
+
+// your console logs will be invoked
+```
+
 ### Set custom expiry margin for tokens
 
 ```typescript
@@ -114,6 +134,13 @@ const token = await client.fetchIdTokenNoCache(aud);
 // utils
 const decoded = decodeSaToken(token);
 const sampleToken = generateExampleSaToken({ aud: 'override' });
+
+// testing example with jest
+jest
+  .spyOn(GoogleSaIdToken.prototype, 'fetchIdToken')
+  .mockResolvedValue(
+    Promise.resolve(generateExampleSaToken({ aud: 'test' }).raw),
+  );
 ```
 
 

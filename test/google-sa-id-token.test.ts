@@ -131,5 +131,22 @@ describe('GoogleSaIdToken', () => {
 
       expect(third).toEqual(mockToken.raw);
     });
+
+    test('logger', async () => {
+      const aud = 'test';
+
+      const mockToken = generateExampleSaToken({ aud });
+      const isDone = mockGetSaIdToken(mock, mockToken.raw, aud);
+
+      const loggerMock = { info: jest.fn() };
+
+      const client = new GoogleSaIdToken({ logger: loggerMock });
+
+      await client.fetchIdToken(aud);
+
+      isDone();
+
+      expect(loggerMock.info).toBeCalled();
+    });
   });
 });
