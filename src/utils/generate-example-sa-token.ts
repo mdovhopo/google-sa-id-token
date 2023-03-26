@@ -3,7 +3,7 @@ import ms from 'ms';
 
 import { TokenPayload } from '../token.types';
 
-export function randomString(length: number, encode: 'hex' | 'base64'): string {
+export function randomString(length: number, encode: 'hex' | 'base64' | 'base64url'): string {
   return randomBytes(length * 4)
     .slice(0, length)
     .toString(encode);
@@ -38,7 +38,7 @@ export function generateExampleSaToken(token: Partial<TokenPayload>) {
     Buffer.from(JSON.stringify(obj)).toString('base64url');
 
   return {
-    raw: `${encode(header)}.${encode(payload)}.${randomString(64, 'base64')}`,
+    raw: `${encode(header)}.${encode(payload)}.${randomString(64, 'base64url')}`,
     payload,
   };
 }
