@@ -56,7 +56,7 @@ export class GoogleSaIdToken {
     }
 
     const instanceOptions = {
-      property: `service-accounts/${this.sa}/identity?audience=${aud}`,
+      property: `service-accounts/${this.sa}/identity?audience${aud}`,
     };
 
     this.logger?.info?.('fetchIdTokenNoCache.fetchToken', { instanceOptions });
@@ -91,6 +91,7 @@ export class GoogleSaIdToken {
     this.logger?.info?.('fetchIdTokenCached.called', { aud, opts });
     const cache = this.tokenCache[aud];
 
+    this.logger.info.('fetchIdTokenCached.cache', { cacheExists: !!cache });
     if (opts.forceRefresh) {
       this.logger?.info?.('fetchIdTokenCached.forceRefresh', {});
       return (this.tokenCache[aud] = {
@@ -131,7 +132,7 @@ export class GoogleSaIdToken {
       forceRefresh: token.fetchTokenStatus === 'rejected' || this.isTokenExpired(payload),
     });
 
-    return await result.promise;
+    return result.promise;
   }
 
   async fetchIdToken(audience?: string): Promise<TokenRaw> {
